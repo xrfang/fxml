@@ -17,7 +17,7 @@ type (
 	}
 )
 
-func (xt *XMLTree) Parse(xd *xml.Decoder) error {
+func (xt *XMLTree) parse(xd *xml.Decoder) error {
 	for {
 		t, err := xd.Token()
 		if err != nil {
@@ -32,7 +32,7 @@ func (xt *XMLTree) Parse(xd *xml.Decoder) error {
 				Name: t.Name,
 				Attr: t.Attr,
 			}
-			err := child.Parse(xd)
+			err := child.parse(xd)
 			if err != nil {
 				return err
 			}
@@ -60,4 +60,14 @@ func (xt *XMLTree) Parse(xd *xml.Decoder) error {
 			xt.Directive = string(t)
 		}
 	}
+}
+
+func Parse(r io.Reader) (*XMLTree, error) {
+	d := xml.NewDecoder(r)
+	var xt XMLTree
+	err := xt.parse(d)
+	if err == nil {
+		return &xt, nil
+	}
+	return nil, err
 }
