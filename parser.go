@@ -1,3 +1,9 @@
+/*
+fxml - FreeStyle XML Parser
+
+This package provides a simple parser which reads a XML document and output a tree structure,
+which does not need a pre-defined `struct`, hence the name "FreeStyle".
+*/
 package fxml
 
 import (
@@ -10,6 +16,9 @@ import (
 )
 
 type (
+	// walk the entire XML tree in depth-first order. The first parameter
+	// is a UNIX style path of the current node, the second parameter is
+	// the "current" node.  If it returns false, traverse will terminate.
 	XTraverser func(string, XMLTree) bool
 	XMLTree    struct {
 		Name      xml.Name
@@ -79,10 +88,12 @@ func (xt XMLTree) traverse(pfx string, v XTraverser) bool {
 	return true
 }
 
+// walk through the XMLTree using the given traverser.
 func (xt XMLTree) Traverse(v XTraverser) bool {
 	return xt.traverse("", v)
 }
 
+// convert the XMLTree to a JSON string
 func (xt XMLTree) ToJSON() string {
 	var buf bytes.Buffer
 	if err := json.NewEncoder(&buf).Encode(xt); err != nil {
@@ -91,6 +102,7 @@ func (xt XMLTree) ToJSON() string {
 	return buf.String()
 }
 
+// Convert a JSON string to XMLTree
 func FromJSON(js string) (*XMLTree, error) {
 	var xt XMLTree
 	err := json.Unmarshal([]byte(js), &xt)
@@ -100,6 +112,7 @@ func FromJSON(js string) (*XMLTree, error) {
 	return &xt, nil
 }
 
+// Construct a XMLTree from the given io.Reader
 func Parse(r io.Reader) (*XMLTree, error) {
 	d := xml.NewDecoder(r)
 	var xt XMLTree
