@@ -1,19 +1,23 @@
 package fxml
 
 import (
+	"bytes"
+	"encoding/json"
 	"encoding/xml"
 	"io"
+	"path"
 	"regexp"
 )
 
 type (
-	XMLTree struct {
+	XTraverser func(string, XMLTree) bool
+	XMLTree    struct {
 		Name      xml.Name
-		Attr      []xml.Attr
-		Comment   string
-		Directive string
-		Text      string
-		Children  []XMLTree
+		Attr      []xml.Attr `json:",omitempty"`
+		Comment   string     `json:",omitempty"`
+		Directive string     `json:",omitempty"`
+		Text      string     `json:",omitempty"`
+		Children  []XMLTree  `json:",omitempty"`
 	}
 )
 
@@ -60,6 +64,40 @@ func (xt *XMLTree) parse(xd *xml.Decoder) error {
 			xt.Directive = string(t)
 		}
 	}
+}
+
+func (xt XMLTree) traverse(pfx string, v XTraverser) bool {
+	p := path.Join(pfx, xt.Name.Local)
+	if !v(p, xt) {
+		return false
+	}
+	for _, c := range xt.Children {
+		if !c.traverse(p, v) {
+			return false
+		}
+	}
+	return true
+}
+
+func (xt XMLTree) Traverse(v XTraverser) bool {
+	return xt.traverse("", v)
+}
+
+func (xt XMLTree) ToJSON() string {
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(xt); err != nil {
+		panic(err)
+	}
+	return buf.String()
+}
+
+func FromJSON(js string) (*XMLTree, error) {
+	var xt XMLTree
+	err := json.Unmarshal([]byte(js), &xt)
+	if err != nil {
+		return nil, err
+	}
+	return &xt, nil
 }
 
 func Parse(r io.Reader) (*XMLTree, error) {
