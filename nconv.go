@@ -12,18 +12,18 @@ type (
 		Init(string) error
 		ToString([]byte) string
 	}
-	IConv struct{}
+	NConv struct{}
 )
 
-func (ic *IConv) Init(charset string) error {
+func (ic *NConv) Init(charset string) error {
 	if charset != "UTF-8" {
 		return fmt.Errorf("invalid charset '%s' (UTF-8 only)", charset)
 	}
 	return nil
 }
 
-func (ic IConv) ToString(v []byte) string {
+func (ic NConv) ToString(v []byte) string {
 	return string(v)
 }
 
-var conv Converter
+var conv NConv

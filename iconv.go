@@ -41,4 +41,4 @@ func (ic IConv) ToString(v []byte) string {
 	return ic.conv(v)
 }
 
-var conv Converter
+var conv IConv

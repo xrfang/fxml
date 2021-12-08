@@ -66,8 +66,11 @@ func Parse(r io.Reader) (*XMLTree, error) {
 	d := xml.NewDecoder(r)
 	var xt XMLTree
 	err := xt.parse(d)
-	if err == nil {
-		return &xt, nil
+	if err != nil {
+		return nil, err
 	}
-	return nil, err
+	if xt.Name.Space == "" && xt.Name.Local == "" && len(xt.Children) == 1 {
+		xt = xt.Children[0]
+	}
+	return &xt, nil
 }
