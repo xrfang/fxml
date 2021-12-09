@@ -146,7 +146,7 @@ func encodeToken(w io.Writer, t xml.Token) {
 	case xml.EndElement:
 		write("</", nstr(t.Name), ">")
 	case xml.CharData:
-		write(string(t))
+		write(escapeText(string(t), false))
 	case xml.Comment:
 		if bytes.Contains(t, endComment) {
 			panic(errors.New("encoding comment containing --> marker"))
