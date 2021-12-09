@@ -30,7 +30,7 @@ type (
 
 func (xt *XMLTree) parse(xd *xml.Decoder) error {
 	for {
-		t, err := xd.Token()
+		t, err := xd.RawToken()
 		if err != nil {
 			if err == io.EOF {
 				return nil
