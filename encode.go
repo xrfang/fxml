@@ -120,18 +120,19 @@ func isValidDirective(dir xml.Directive) bool {
 	return depth == 0 && inquote == 0 && !incomment
 }
 
+func nstr(n xml.Name) string {
+	if n.Space != "" {
+		return n.Space + ":" + n.Local
+	}
+	return n.Local
+}
+
 func encodeToken(w io.Writer, t xml.Token) {
 	write := func(ss ...string) {
 		for _, s := range ss {
 			_, err := w.Write([]byte(s))
 			assert(err)
 		}
-	}
-	nstr := func(n xml.Name) string {
-		if n.Space != "" {
-			return n.Space + ":" + n.Local
-		}
-		return n.Local
 	}
 	switch t := t.(type) {
 	case xml.StartElement:
@@ -178,7 +179,7 @@ func (xt XMLTree) encode(w io.Writer) {
 	encodeToken(w, xml.EndElement{xt.Name})
 }
 
-// output XML string to w.  If full is true, prepend the standard ProcInst
+// Output XML string to w.  If full is true, prepend the standard ProcInst
 //    <?xml version="1.0" encoding="UTF-8"?>
 func (xt XMLTree) Encode(w io.Writer, full bool) (err error) {
 	defer func() {

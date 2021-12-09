@@ -9,16 +9,11 @@ package fxml
 import (
 	"encoding/xml"
 	"io"
-	"path"
 	"regexp"
 )
 
 type (
-	// walk the entire XML tree in depth-first order. The first parameter
-	// is a UNIX style path of the current node, the second parameter is
-	// the "current" node.  If it returns false, traverse will terminate.
-	XTraverser func(string, XMLTree) bool
-	XMLTree    struct {
+	XMLTree struct {
 		Name      xml.Name
 		Attr      []xml.Attr `json:",omitempty"`
 		Comment   string     `json:",omitempty"`
@@ -71,24 +66,6 @@ func (xt *XMLTree) parse(xd *xml.Decoder) error {
 			xt.Directive = string(t)
 		}
 	}
-}
-
-func (xt XMLTree) traverse(pfx string, v XTraverser) bool {
-	p := path.Join(pfx, xt.Name.Local)
-	if !v(p, xt) {
-		return false
-	}
-	for _, c := range xt.Children {
-		if !c.traverse(p, v) {
-			return false
-		}
-	}
-	return true
-}
-
-// walk through the XMLTree using the given traverser.
-func (xt XMLTree) Traverse(v XTraverser) bool {
-	return xt.traverse("", v)
 }
 
 // Construct a XMLTree from the given io.Reader
