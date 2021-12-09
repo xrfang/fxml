@@ -1,34 +1,47 @@
-//go:build ignore
-// +build ignore
-
 package fxml
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 )
 
+// parse XML data from a reader
 func ExampleParse() {
-	f, err := os.Open("your_file.xml")
+	b := bytes.NewBufferString(`<?xml version="1.0" encoding="UTF-8"?>
+	<kml xmlns="http://www.opengis.net/kml/2.2"
+	  xmlns:gx="http://www.google.com/kml/ext/2.2"
+	  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	  <Document id="example">
+		<name>Map of the region</name>
+	  </Document>
+	</kml>`)
+	xt, err := Parse(b)
 	if err != nil {
 		panic(err)
 	}
-	defer f.Close()
-	xt, err := Parse(f)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(xt.ToJSON())
+	xt.Encode(os.Stdout, true)
 }
 
 func ExampleTraverse() {
-	var kml XMLTree //parsed from a KML document
-	var pms []XMLTree
-	//get all "Placemark"
-	kml.Traverse(func(p string, xt XMLTree) bool {
-		if xt.Name.Local == "Placemark" {
-			pms = append(pms, xt)
-		}
+	b := bytes.NewBufferString(`<?xml version="1.0" encoding="UTF-8"?>
+	<kml xmlns="http://www.opengis.net/kml/2.2"
+	  xmlns:gx="http://www.google.com/kml/ext/2.2"
+	  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	  <Document id="example">
+		<name>Map of the region</name>
+	  </Document>
+	</kml>`)
+	xt, err := Parse(b)
+	if err != nil {
+		panic(err)
+	}
+	xt.Traverse(func(p string, xt XMLTree) bool {
+		fmt.Println(p)
 		return true
 	})
+	//Output:
+	//kml
+	//kml/Document
+	//kml/Document/name
 }
