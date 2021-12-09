@@ -179,7 +179,7 @@ func (xt XMLTree) encode(w io.Writer) {
 	encodeToken(w, xml.EndElement{xt.Name})
 }
 
-// Output XML string to w.  If full is true, prepend the standard ProcInst
+// Output XML string to ``w''.  If ``full'' is true, prepend the standard ProcInst:
 //    <?xml version="1.0" encoding="UTF-8"?>
 func (xt XMLTree) Encode(w io.Writer, full bool) (err error) {
 	defer func() {

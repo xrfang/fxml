@@ -3,8 +3,8 @@ package fxml
 import "path"
 
 // Walk the entire XML tree in depth-first order. The first parameter
-// is a UNIX style path of the current node, the second parameter is
-// the "current" node.  If it returns false, traverse will terminate.
+// is a UNIX style path of the node being visited, the second parameter
+// is the node itself.  If it returns false, traverse will terminate.
 type XTraverser func(string, XMLTree) bool
 
 func (xt XMLTree) traverse(pfx string, v XTraverser) bool {

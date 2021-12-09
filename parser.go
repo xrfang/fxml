@@ -2,7 +2,7 @@
 fxml - FreeStyle XML Parser
 
 This package provides a simple parser which reads a XML document and output a tree structure,
-which does not need a pre-defined `struct`, hence the name "FreeStyle".
+which does not need a pre-defined ``struct'', hence the name ``FreeStyle''.
 */
 package fxml
 

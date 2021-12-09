@@ -13,10 +13,9 @@ type (
 		Init(string) error
 		ToString([]byte) string
 	}
-	// "iconv" converter, which output UTF-8 text as-is, and convert other
-	// charsets to UTF-8 using libiconv.  This converter uses CGo. See:
-	//
-	//    https://github.com/djimenez/iconv-go
+	// ``iconv'' converter, which output UTF-8 text as-is, and convert other
+	// charsets to UTF-8 using ``libiconv''.  This converter uses CGo. See:
+	// https://github.com/djimenez/iconv-go
 	IConv struct {
 		conv func([]byte) string
 		ic   iconv.Converter
