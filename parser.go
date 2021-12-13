@@ -10,6 +10,7 @@ import (
 	"encoding/xml"
 	"io"
 	"regexp"
+	"strings"
 )
 
 type (
@@ -46,9 +47,15 @@ func (xt *XMLTree) parse(xd *xml.Decoder) error {
 		case xml.EndElement:
 			return nil
 		case xml.CharData:
-			xt.Text = string(t)
+			s := strings.TrimSpace(string(t))
+			if len(s) > 0 {
+				xt.Children = append(xt.Children, XMLTree{Text: s})
+			}
 		case xml.Comment:
-			xt.Comment = string(t)
+			s := strings.TrimSpace(string(t))
+			if len(s) > 0 {
+				xt.Children = append(xt.Children, XMLTree{Comment: s})
+			}
 		case xml.ProcInst:
 			if t.Target == "xml" {
 				rx := regexp.MustCompile(`encoding="(.+?)"`)
@@ -63,7 +70,10 @@ func (xt *XMLTree) parse(xd *xml.Decoder) error {
 				}
 			}
 		case xml.Directive:
-			xt.Directive = string(t)
+			s := strings.TrimSpace(string(t))
+			if len(s) > 0 {
+				xt.Children = append(xt.Children, XMLTree{Directive: s})
+			}
 		}
 	}
 }
