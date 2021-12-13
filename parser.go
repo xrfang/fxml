@@ -45,6 +45,19 @@ func (xt *XMLTree) parse(xd *xml.Decoder) error {
 			}
 			xt.Children = append(xt.Children, child)
 		case xml.EndElement:
+			if len(xt.Children) == 1 {
+				c := xt.Children[0]
+				if c.Name.Space == "" && c.Name.Local == "" {
+					if c.Text != "" {
+						xt.Text = c.Text
+					} else if c.Comment != "" {
+						xt.Comment = c.Comment
+					} else if c.Directive != "" {
+						xt.Directive = c.Directive
+					}
+					xt.Children = nil
+				}
+			}
 			return nil
 		case xml.CharData:
 			s := strings.TrimSpace(string(t))
