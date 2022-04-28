@@ -7,6 +7,7 @@ which does not need a pre-defined ``struct'', hence the name ``FreeStyle''.
 package fxml
 
 import (
+	"bufio"
 	"encoding/xml"
 	"io"
 	"regexp"
@@ -93,7 +94,18 @@ func (xt *XMLTree) parse(xd *xml.Decoder) error {
 
 // Construct a XMLTree from the given io.Reader
 func Parse(r io.Reader) (*XMLTree, error) {
-	d := xml.NewDecoder(r)
+	br := bufio.NewReader(r)
+	for {
+		b, err := br.ReadByte()
+		if err != nil {
+			return nil, err
+		}
+		if b == '<' {
+			br.UnreadByte()
+			break
+		}
+	}
+	d := xml.NewDecoder(br)
 	var xt XMLTree
 	err := xt.parse(d)
 	if err != nil {
