@@ -24,6 +24,8 @@ type (
 	// XWalker works on pointer of XMLTree, i.e. it allows in place modification
 	// of the tree nodes.
 	XWalker func(XNodInfo, *XMLTree) XWalkResult
+
+	XWalkerWithTree func(XNodInfo, *XMLTree) (XWalkResult, *XMLTree)
 )
 
 const (
@@ -53,7 +55,34 @@ func (xt *XMLTree) walk(ni XNodInfo, w XWalker) XWalkResult {
 	return WRCont
 }
 
+func (xt *XMLTree) walkWithReturn(ni XNodInfo, w XWalkerWithTree, x *XMLTree) (XWalkResult, *XMLTree) {
+	ni.Path = append(ni.Path, xt.Name.Local)
+	wr, x := w(ni, xt)
+	if wr != WRCont {
+		return wr, x
+	}
+	for i, c := range xt.Children {
+		ni.Index = i
+		ni.RIndex = i - len(xt.Children)
+		wr, x := c.walkWithReturn(ni, w, x)
+		xt.Children[i] = c
+		switch wr {
+		case WRTerm:
+			return WRTerm, x
+		case WRSkip:
+			return WRCont, x
+		}
+	}
+	return WRCont, x
+}
+
 // walk through the XMLTree using the given walker.
 func (xt *XMLTree) Walk(w XWalker) {
 	xt.walk(XNodInfo{}, w)
+}
+
+func (xt *XMLTree) WalkMutate(w XWalkerWithTree) (x *XMLTree) {
+	var newXML XMLTree
+	_, x = xt.walkWithReturn(XNodInfo{}, w, &newXML)
+	return
 }
