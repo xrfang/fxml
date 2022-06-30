@@ -5,6 +5,7 @@ package fxml
 
 import (
 	"fmt"
+	"strings"
 )
 
 type (
@@ -39,7 +40,7 @@ type (
 
 // Initialize the converter.  This function is called by the parser internally.
 func (ic *NConv) Init(charset string) error {
-	if charset != "UTF-8" {
+	if strings.ToUpper(charset) != "UTF-8" {
 		return fmt.Errorf("invalid charset '%s' (UTF-8 only)", charset)
 	}
 	return nil
