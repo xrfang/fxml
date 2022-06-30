@@ -163,7 +163,10 @@ func encodeToken(w io.Writer, t xml.Token) {
 }
 
 func (xt XMLTree) encode(w io.Writer) {
-	encodeToken(w, xml.StartElement{Name: xt.Name, Attr: xt.Attr})
+	if xt.Name.Local != "" {
+		encodeToken(w, xml.StartElement{Name: xt.Name, Attr: xt.Attr})
+		defer encodeToken(w, xml.EndElement{Name: xt.Name})
+	}
 	if xt.Comment != "" {
 		encodeToken(w, xml.Comment(xt.Comment))
 	}
@@ -176,7 +179,6 @@ func (xt XMLTree) encode(w io.Writer) {
 	for _, c := range xt.Children {
 		c.encode(w)
 	}
-	encodeToken(w, xml.EndElement{xt.Name})
 }
 
 // Output XML string to ``w''.  If ``full'' is true, prepend the standard ProcInst:
