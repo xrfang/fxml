@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/xml"
 	"errors"
+	"fmt"
 	"io"
 	"unicode/utf8"
 )
@@ -181,8 +182,9 @@ func (xt XMLTree) encode(w io.Writer) {
 	}
 }
 
-// Output XML string to ``w''.  If ``full'' is true, prepend the standard ProcInst:
-//    <?xml version="1.0" encoding="UTF-8"?>
+// Output XML string to “w”.  If “full” is true, prepend the standard ProcInst:
+//
+//	<?xml version="1.0" encoding="UTF-8"?>
 func (xt XMLTree) Encode(w io.Writer, full bool) (err error) {
 	defer func() {
 		if e := recover(); e != nil {
@@ -194,4 +196,14 @@ func (xt XMLTree) Encode(w io.Writer, full bool) (err error) {
 	}
 	xt.encode(w)
 	return
+}
+
+// Wrapper of the Encode method.
+func (xt XMLTree) ToString(full bool) (string, error) {
+	var bs bytes.Buffer
+	err := xt.Encode(&bs, full)
+	if err != nil {
+		return fmt.Sprintf("fxml: error: %v", err), err
+	}
+	return bs.String(), nil
 }
